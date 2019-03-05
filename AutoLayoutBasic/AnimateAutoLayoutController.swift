@@ -124,7 +124,13 @@ class AnimateAutoLayoutController: UIViewController {
 
     private func pointLocation(at location: CGPoint, in view: UIView) -> PointLocation {
         var result = PointLocation(.top, .left)
+        
+        // if location of the tap if less than half og the screen in vertical,
+        // store .top in first value of the tuple, .bottom in other case
         result.0 = location.y <= view.frame.size.height * 0.5 ? .top : .bottom
+
+        // if location of the tap if less than half og the screen in horizontal,
+        // store .left in first value of the tuple, .right in other case
         result.1 = location.x <= view.frame.size.width * 0.5 ? .left : .right
         
         return result
@@ -134,9 +140,11 @@ class AnimateAutoLayoutController: UIViewController {
         let location = recognizer.location(in: view)
         let quarter = pointLocation(at: location, in: view)
         
+        // deactivate current constraints
         NSLayoutConstraint.deactivate(initialConstraints + topLeftConstraints + topRightConstraints +
             bottomLeftConstraints + bottomRightConstraints)
         
+        // activate set of the constraints depend on tap location
         switch quarter {
         case (.top, .left):
             NSLayoutConstraint.activate(topLeftConstraints)
@@ -148,9 +156,11 @@ class AnimateAutoLayoutController: UIViewController {
             NSLayoutConstraint.activate(bottomRightConstraints)
         }
         
+        // call UIView.animate method
         UIView.animate(withDuration: 0.69, delay: 0.0, usingSpringWithDamping: 1.0, initialSpringVelocity: 1.0,
                        options: .curveEaseInOut, animations: {
-                        self.view.layoutIfNeeded()
+            // call layoutIfNeeded of the SUPERVIEW to star animation
+            self.view.layoutIfNeeded()
         }, completion: nil)
     }
 }
